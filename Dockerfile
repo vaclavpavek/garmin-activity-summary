@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application
 COPY generate_summary.py .
 
- # Create data directory
+# Create data directory
 RUN mkdir -p /app/data
 
 # Run the application

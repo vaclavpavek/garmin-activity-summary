@@ -4,12 +4,12 @@ Garmin Activity Summary Generator
 Generates a PNG image summary similar to Garmin Connect year-end report.
 """
 
+import re
+import os
+
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
-import re
-import os
-import sys
 
 
 def parse_time_to_seconds(time_str):
@@ -47,7 +47,6 @@ def parse_number(value):
 
         # Check if comma is thousands separator (e.g., "2,738" = 2738)
         # or decimal separator (e.g., "2,5" = 2.5)
-        import re
         if re.match(r'^\d+,\d{3}$', value):
             # Comma followed by exactly 3 digits = thousands separator
             value = value.replace(",", "")
@@ -192,7 +191,7 @@ def draw_icon(draw, x, y, icon_type, color, size=40):
         draw.ellipse([x+size//4, y+size//4, x+size*3//4, y+size*3//4], fill=color)
 
 
-# Barvy pro ikony
+# Colors for icons
 COLORS = {
     'steps': (100, 149, 237),      # Cornflower blue
     'activities': (255, 99, 71),    # Tomato red
@@ -218,24 +217,20 @@ def generate_summary_image(stats, output_path):
         title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
         big_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 42)
         medium_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-        small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 18)
-    except:
+    except OSError:
         try:
             title_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 48)
             big_font = ImageFont.truetype("DejaVuSans-Bold.ttf", 42)
             medium_font = ImageFont.truetype("DejaVuSans.ttf", 24)
-            small_font = ImageFont.truetype("DejaVuSans.ttf", 18)
-        except:
+        except OSError:
             title_font = ImageFont.load_default()
             big_font = title_font
             medium_font = title_font
-            small_font = title_font
 
     # Metrics to display
     y_offset = 60
     x_icon = 50
     x_value = 100
-    x_label = 350
     row_height = 110
 
     metrics = [
@@ -279,7 +274,7 @@ def generate_summary_image(stats, output_path):
     draw.line([(50, height - 150), (width - 50, height - 150)], fill=(100, 130, 160), width=1)
 
     # Save image
-    img.save(output_path, 'PNG', quality=95)
+    img.save(output_path, 'PNG')
     print(f"Summary image saved to: {output_path}")
 
     return img
