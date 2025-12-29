@@ -45,9 +45,24 @@ def parse_number(value):
         # Remove spaces (thousands separator)
         value = value.replace(" ", "").replace("\u00a0", "")
 
+        # Handle mixed format with both separators (e.g., "1.200,5" or "1,200.5")
+        if '.' in value and ',' in value:
+            # Determine which is thousands and which is decimal by position
+            dot_pos = value.rfind('.')
+            comma_pos = value.rfind(',')
+            if dot_pos > comma_pos:
+                # Dot is decimal (e.g., "1,200.5" -> 1200.5)
+                value = value.replace(",", "")
+            else:
+                # Comma is decimal (e.g., "1.200,5" -> 1200.5)
+                value = value.replace(".", "").replace(",", ".")
+        # Check if dot is thousands separator (e.g., "5.972" = 5972)
+        # Dot followed by exactly 3 digits = thousands separator (Czech format)
+        elif re.match(r'^\d+\.\d{3}$', value):
+            value = value.replace(".", "")
         # Check if comma is thousands separator (e.g., "2,738" = 2738)
         # or decimal separator (e.g., "2,5" = 2.5)
-        if re.match(r'^\d+,\d{3}$', value):
+        elif re.match(r'^\d+,\d{3}$', value):
             # Comma followed by exactly 3 digits = thousands separator
             value = value.replace(",", "")
         else:
