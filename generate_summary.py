@@ -56,14 +56,13 @@ def parse_number(value):
             else:
                 # Comma is decimal (e.g., "1.200,5" -> 1200.5)
                 value = value.replace(".", "").replace(",", ".")
-        # Check if dot is thousands separator (e.g., "5.972" = 5972)
-        # Dot followed by exactly 3 digits = thousands separator (Czech format)
-        elif re.match(r'^\d+\.\d{3}$', value):
+        # Check if dot is thousands separator (e.g., "5.972" or "1.234.567")
+        # Pattern: 1-3 digits followed by groups of dot + 3 digits (Czech format)
+        elif re.match(r'^\d{1,3}(\.\d{3})+$', value):
             value = value.replace(".", "")
-        # Check if comma is thousands separator (e.g., "2,738" = 2738)
-        # or decimal separator (e.g., "2,5" = 2.5)
-        elif re.match(r'^\d+,\d{3}$', value):
-            # Comma followed by exactly 3 digits = thousands separator
+        # Check if comma is thousands separator (e.g., "2,738" or "1,234,567")
+        # Pattern: 1-3 digits followed by groups of comma + 3 digits
+        elif re.match(r'^\d{1,3}(,\d{3})+$', value):
             value = value.replace(",", "")
         else:
             # Otherwise treat comma as decimal separator
